@@ -1,3 +1,5 @@
+.RECIPEPREFIX := >
+
 NASM        ?= nasm
 LD          ?= ld
 NASMFLAGS   ?= -f elf64 -g -F dwarf -w+all -w-reloc-rel-dword
@@ -7,34 +9,27 @@ TARGET      := authtrace
 BUILD_DIR   := build
 SOURCE      := src/main.asm
 OBJECT      := $(BUILD_DIR)/main.o
+TEST_SCRIPT := tests/test_cli.sh
 
 .PHONY: all clean run test
 
 all: $(TARGET)
 
 $(BUILD_DIR):
-	mkdir -p $(BUILD_DIR)
+>mkdir -p $(BUILD_DIR)
 
 $(OBJECT): $(SOURCE) | $(BUILD_DIR)
-	$(NASM) $(NASMFLAGS) -o $@ $<
+>$(NASM) $(NASMFLAGS) -o $@ $<
 
 $(TARGET): $(OBJECT)
-	$(LD) $(LDFLAGS) -o $@ $^
+>$(LD) $(LDFLAGS) -o $@ $^
 
 run: $(TARGET)
-	./$(TARGET)
+>@test -n "$(LOG)" || { printf 'Usage: make run LOG=path/to/auth.log\n'; exit 2; }
+>./$(TARGET) "$(LOG)"
 
-test: $(TARGET)
-	@output="$$(./$(TARGET))"; status=$$?; \
-	if [ $$status -ne 0 ]; then \
-		printf 'FAIL: authtrace exited with status %s\n' "$$status"; \
-		exit 1; \
-	fi; \
-	if [ "$$output" != "AuthTrace64 v0.1" ]; then \
-		printf 'FAIL: unexpected output: %s\n' "$$output"; \
-		exit 1; \
-	fi; \
-	printf 'PASS: v0.1 smoke test\n'
+test: $(TARGET) $(TEST_SCRIPT)
+>./$(TEST_SCRIPT) ./$(TARGET)
 
 clean:
-	$(RM) -r $(BUILD_DIR) $(TARGET)
+>$(RM) -r $(BUILD_DIR) $(TARGET)

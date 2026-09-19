@@ -3,7 +3,8 @@
 AuthTrace64 is an x86-64 NASM Linux command-line project designed to analyze
 OpenSSH authentication logs using bounded-memory streaming I/O.
 
-> Current status: v0.1 repository foundation. Log analysis is not implemented yet.
+> Current status: v0.2 input validation and file-opening milestone.
+> Log reading and analysis are not implemented yet.
 
 ## Problem
 
@@ -20,13 +21,17 @@ sources without loading the entire log file into memory.
 
 ## Current Milestone
 
-Version 0.1 provides:
+Version 0.2 provides:
 
-- a minimal x86-64 NASM executable;
-- a repeatable Make-based build;
-- an automated smoke test;
-- failure checking for the `write` system call; and
-- the initial project structure.
+- an x86-64 NASM executable;
+- exact command-line argument validation;
+- read-only file opening with the Linux `openat` system call;
+- safe file closing;
+- separate standard output and error output;
+- distinct process exit statuses;
+- partial-write and interrupted-write handling;
+- a repeatable Make-based build; and
+- four automated CLI and file-validation tests.
 
 ## Requirements
 
@@ -34,55 +39,62 @@ Version 0.1 provides:
 - NASM
 - GNU `ld` from Binutils
 - GNU Make
+- Bash for the automated tests
 
 ## Build
 
-```bash
-make
-```
+    make
 
 ## Run
 
-```bash
-make run
-```
+Using Make:
+
+    make run LOG=tests/fixtures/sample_auth.log
+
+Or run the executable directly:
+
+    ./authtrace tests/fixtures/sample_auth.log
 
 Expected output:
 
-```text
-AuthTrace64 v0.1
-```
+    AuthTrace64 v0.2
+    Input file opened and closed successfully.
+
+## Exit Statuses
+
+| Status | Meaning |
+|---:|---|
+| `0` | Success |
+| `1` | Output write failure |
+| `2` | Invalid command-line usage |
+| `3` | Input file could not be opened |
+| `4` | Input file could not be closed |
 
 ## Test
 
-```bash
-make test
-```
+    make test
 
-Expected result:
+Expected final result:
 
-```text
-PASS: v0.1 smoke test
-```
+    PASS: all 4 tests passed
 
 ## Clean
 
-```bash
-make clean
-```
+    make clean
 
 ## Roadmap
 
 Future milestones will add:
 
-- command-line argument validation;
-- safe file opening and error reporting;
-- bounded-memory streaming;
-- line-boundary handling;
+- regular-file validation;
+- bounded-memory file streaming;
+- line-boundary handling across input buffers;
 - OpenSSH event parsing;
 - authentication-event aggregation;
-- suspicious-source reporting; and
-- a larger automated test suite.
+- suspicious-source reporting;
+- large-file and malformed-input tests;
+- continuous integration; and
+- a final v1.0 release.
 
 ## License
 
