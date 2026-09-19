@@ -1,0 +1,14 @@
+# Build output
+/build/
+/authtrace
+*.o
+
+# Generated test and benchmark data
+/tests/generated/
+/benchmarks/results/
+
+# Editor and operating-system files
+.vscode/
+*.swp
+*~
+.DS_Store
