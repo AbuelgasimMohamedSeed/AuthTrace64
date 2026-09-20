@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install NASM
+        run: sudo apt-get update && sudo apt-get install --yes nasm
+
+      - name: Build
+        run: make
+
+      - name: Test
+        run: make test
+
+      - name: Build release artifact
+        run: make release
+
+      - name: Upload release candidate
+        uses: actions/upload-artifact@v4
+        with:
+          name: authtrace-linux-x86_64
+          path: |
+            authtrace
+            authtrace.sha256
+          if-no-files-found: error
