@@ -1,6 +1,7 @@
 # Build output
 /build/
 /authtrace
+/authtrace.sha256
 *.o
 
 # Generated test and benchmark data
@@ -12,3 +13,4 @@
 *.swp
 *~
 .DS_Store
+*:Zone.Identifier
